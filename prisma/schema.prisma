@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskCategory {
+  personal
+  work
+}
+
+enum TaskStatus {
+  pending
+  in_progress
+  complete
+}
+
+enum TaskPriority {
+  high
+  low
+}
+
+model Task {
+  id           Int          @id() @default(autoincrement())
+  duration     Int
+  createdAt    DateTime     @default(now()) @map("created_at")
+  category     TaskCategory
+  actions      String[] // call, email, etc
+  taskGroup    String       @map("task_group") // Project A, Project B, Project C
+  status       TaskStatus
+  assignedDate DateTime?    @map("assigned_date")
+  userId       Int          @map("user_id")
+  priority     TaskPriority @default(low)
+
+  user User @relation(fields: [userId], references: [id])
+
+  taskLogs TaskLog[]
+}
+
+model TaskLog {
+  id        Int          @id() @default(autoincrement())
+  date      DateTime
+  notes     String
+  taskId    Int          @map("task_id")
+  userId    Int          @map("user_id")
+  duration  Int
+  category  TaskCategory
+  actions   String[] // call, email, etc
+  taskGroup String       @map("task_group") // Project A, Project B, Project C
+  status    TaskStatus
+  priority  TaskPriority
+
+  user User @relation(fields: [userId], references: [id])
+  task Task @relation(fields: [taskId], references: [id])
+}
+
+model User {
+  id         Int      @id() @default(autoincrement())
+  username   String
+  created_at DateTime @default(now())
+
+  tasklogs TaskLog[]
+  tasks    Task[]
+}
