@@ -44,6 +44,8 @@ model Task {
   user User @relation(fields: [userId], references: [id])
 
   taskLogs TaskLog[]
+
+  @@map("task")
 }
 
 model TaskLog {
@@ -61,6 +63,8 @@ model TaskLog {
 
   user User @relation(fields: [userId], references: [id])
   task Task @relation(fields: [taskId], references: [id])
+
+  @@map("task_log")
 }
 
 model User {
@@ -70,4 +74,6 @@ model User {
 
   tasklogs TaskLog[]
   tasks    Task[]
+
+  @@map("user")
 }
